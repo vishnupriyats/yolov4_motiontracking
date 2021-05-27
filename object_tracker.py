@@ -43,6 +43,17 @@ flags.DEFINE_boolean('dont_show', False, 'dont show video output')
 flags.DEFINE_boolean('info', False, 'show detailed info of tracked objects')
 flags.DEFINE_boolean('count', False, 'count objects being tracked on screen')
 
+import csv
+import smtplib
+
+# creates SMTP session
+s = smtplib.SMTP('smtp.gmail.com', 587)
+
+# start TLS for security
+s.starttls()
+
+# Authentication
+s.login("2017it0011@svce.ac.in", "vishnupriya110")
 
 thresh=120
  #define a function which return the bottom center of every bbox
@@ -138,6 +149,28 @@ def track_a_person(img,ID,violations,person):
   return img,temp
 
 
+def sendMail(contacted):
+    # creates SMTP session
+    s = smtplib.SMTP('smtp.gmail.com', 587)
+
+    # start TLS for security
+    s.starttls()
+
+    # Authentication
+    s.login("2017it0011@svce.ac.in", "vishnupriya110")
+    with open('/content/drive/MyDrive/employee.txt') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            for i in contacted:
+                print(row[0], i)
+                if (line_count != 0 and i == int(row[0])):
+                    message = "Hai " + row[
+                        1] + ", I hope this mail finds you in good health. It has been noted that you were in contact with a covid patient a few days ago. Go and check with your doctor.Take care and follow all the covid protocols "
+                    s.sendmail("2017it0011@svce.ac.in", row[2], message)
+            line_count += 1
+    s.quit()
+
 
 ID=13
 def main(_argv):
@@ -202,6 +235,7 @@ def main(_argv):
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             image = Image.fromarray(frame)
         else:
+            sendMail(contacted)
             print('Video has ended or failed, try a different video format!')
             break
         frame_num +=1
@@ -278,9 +312,9 @@ def main(_argv):
                 names.append(class_name)
         names = np.array(names)
         count = len(names)
-        if FLAGS.count:
-            cv2.putText(frame, "Objects being tracked: {}".format(count), (5, 35), cv2.FONT_HERSHEY_COMPLEX_SMALL, 2, (0, 255, 0), 2)
-            print("Objects being tracked: {}".format(count))
+        # if FLAGS.count:
+        #     cv2.putText(frame, "Objects being tracked: {}".format(count), (5, 35), cv2.FONT_HERSHEY_COMPLEX_SMALL, 2, (0, 255, 0), 2)
+        print("Objects being tracked: {}".format(count))
         # delete detections that are not in allowed_classes
         bboxes = np.delete(bboxes, deleted_indx, axis=0)
         scores = np.delete(scores, deleted_indx, axis=0)
@@ -324,7 +358,7 @@ def main(_argv):
             midpoints[track.track_id]=mid_point(frame,bbox)
         # if enable info flag then print details about each track
             # if FLAGS.info:
-            # print("Tracker ID: {}, Class: {},  BBox Coords (xmin, ymin, xmax, ymax): {}".format(str(track.track_id), class_name, (int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3]))))
+        print("Tracker ID: {}, Class: {},  BBox Coords (xmin, ymin, xmax, ymax): {}".format(str(track.track_id), class_name, (int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3]))))
         # print(midpoints)
         violations=compute_distance(midpoints)
         temp=set()
