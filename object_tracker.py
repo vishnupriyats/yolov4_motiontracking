@@ -357,8 +357,8 @@ def main(_argv):
             person.append([bbox,track.track_id])
             midpoints[track.track_id]=mid_point(frame,bbox)
         # if enable info flag then print details about each track
-            # if FLAGS.info:
-        print("Tracker ID: {}, Class: {},  BBox Coords (xmin, ymin, xmax, ymax): {}".format(str(track.track_id), class_name, (int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3]))))
+        #     if FLAGS.info:
+            print("Tracker ID: {}, Class: {},  BBox Coords (xmin, ymin, xmax, ymax): {}".format(str(track.track_id), class_name, (int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3]))))
         # print(midpoints)
         violations=compute_distance(midpoints)
         temp=set()
